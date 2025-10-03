@@ -13,6 +13,10 @@ module Ticuna
         send_request_to(messages: [{ role: "user", content: message }], stream:, model:, &block)
       end
 
+      def ask_with_messages(messages, stream: false, model: "gpt-4.1-nano", &block)
+        send_request_to(messages:, stream:, model:, &block)
+      end
+
       private
 
       def send_request_to(messages:, model: nil, stream: false, &block)

@@ -2,8 +2,8 @@
 
 require_relative "ticuna/version"
 require_relative "ticuna/llm"
+require_relative "ticuna/tool"
 
 module Ticuna
   class Error < StandardError; end
-  # Your code goes here...
 end
