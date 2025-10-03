@@ -12,7 +12,7 @@ module Ticuna
       openai: -> { Ticuna::Providers::OpenAI.new(api_key: ENV["OPENAI_API_KEY"]) }
     }.freeze
 
-    def self.for(provider = nil)
+    def self.new(provider = nil)
       if provider.nil?
         valid = PROVIDERS_ENV.reject { |_, env_var| ENV[env_var]&.strip.to_s == "" }
 
@@ -33,10 +33,6 @@ module Ticuna
 
       client_proc = PROVIDERS_CLIENT[provider.to_sym] or raise ArgumentError, "Provider not found: #{provider}"
       client_proc.call
-    end
-
-    def self.new(provider = nil)
-      self.for(provider)
     end
   end
 end
