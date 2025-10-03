@@ -1,15 +1,22 @@
 # frozen_string_literal: true
 
 require "ticuna/providers/openai"
+require "ticuna/config"
 
 module Ticuna
   class LLM
     PROVIDERS_ENV = {
-      openai: "OPENAI_API_KEY"
+      openai: -> { Ticuna.config.openai_token },
+      anthropic: -> { Ticuna.config.anthropic_token },
+      deepseek: -> { Ticuna.config.deepseek_token },
+      mistral: -> { Ticuna.config.mistral_token }
     }.freeze
 
     PROVIDERS_CLIENT = {
-      openai: -> { Ticuna::Providers::OpenAI.new(api_key: ENV["OPENAI_API_KEY"]) }
+      openai: -> { Ticuna::Providers::OpenAI.new(api_key: PROVIDERS_ENV[:openai].call) }
+      # anthropic: -> { Ticuna::Providers::Anthropic.new(api_key: PROVIDERS_ENV[:anthropic].call) },
+      # deepseek: -> { Ticuna::Providers::DeepSeek.new(api_key: PROVIDERS_ENV[:deepseek].call) },
+      # mistral: -> { Ticuna::Providers::Mistral.new(api_key: PROVIDERS_ENV[:mistral].call) }
     }.freeze
 
     def self.new(provider = nil)
@@ -33,12 +40,20 @@ module Ticuna
     def ask(message, stream: false, model: "gpt-4.1-nano", &block)
       tool_contexts = @tools.map(&:context).compact.join("\n\n")
 
-      system_message = {
-        role: "system",
-        content: "Você é um agente com acesso às seguintes ferramentas:\n\n#{tool_contexts}"
-      }
+      system_message = if tool_contexts.empty?
+                         nil
+                       else
+                         {
+                           role: "system",
+                           content: "Tools contexts:\n\n#{tool_contexts}"
+                         }
+                       end
 
-      messages = [system_message, { role: "user", content: message }]
+      messages = if system_message
+                   [system_message, { role: "user", content: message }]
+                 else
+                   [{ role: "user", content: message }]
+                 end
       @provider.ask_with_messages(messages, stream: stream, model: model, &block)
     end
 
@@ -47,7 +62,7 @@ module Ticuna
     def self.detect_provider(provider)
       return provider.to_sym if provider
 
-      valid = PROVIDERS_ENV.reject { |_, env_var| ENV[env_var]&.strip.to_s == "" }
+      valid = PROVIDERS_ENV.reject { |_, env_var| env_var.call&.strip.to_s == "" }
 
       case valid.size
       when 0
