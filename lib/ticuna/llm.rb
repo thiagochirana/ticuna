@@ -38,16 +38,13 @@ module Ticuna
       self
     end
 
-    def ask(message, stream: false, model: "gpt-4.1-nano", &block)
+    def ask(message, stream: false, model: "gpt-4.1-nano", output_format: :text, &block)
       tool_contexts = @tools.map(&:context).compact.join("\n\n")
 
       system_message = if tool_contexts.empty?
                          nil
                        else
-                         {
-                           role: "system",
-                           content: "Tools contexts:\n\n#{tool_contexts}"
-                         }
+                         { role: "system", content: "Tools contexts:\n\n#{tool_contexts}" }
                        end
 
       messages = if system_message
@@ -56,7 +53,9 @@ module Ticuna
                    [{ role: "user", content: message }]
                  end
 
-      Ticuna::Response.new(@provider.ask_with_messages(messages, stream: stream, model: model, &block))
+      Ticuna::Response.new(
+        @provider.ask_with_messages(messages, stream: stream, model: model, output_format: output_format, &block)
+      )
     end
 
     private
