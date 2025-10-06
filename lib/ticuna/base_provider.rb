@@ -15,7 +15,10 @@ module Ticuna
           "Content-Type" => "application/json",
           "Authorization" => "Bearer #{api_key}"
         }
-      )
+      ) do |f|
+        f.options.timeout = nil
+        f.options.open_timeout = nil
+      end
     end
   end
 end

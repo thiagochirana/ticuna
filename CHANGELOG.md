@@ -16,3 +16,6 @@
 
 ## [0.2.2] - 2025-10-06
 - Add support for OpenAI with stream and output_format (json or text), [PR here](https://github.com/thiagochirana/ticuna/pull/2)
+
+## [0.2.2.1] - 2025-10-06
+- Remove timeout for requests
