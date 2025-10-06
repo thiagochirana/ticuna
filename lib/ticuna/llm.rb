@@ -68,13 +68,9 @@ module Ticuna
       when 0
         raise "Provider not found. Define at least one ENV with token."
       when 1
-        valid.keys.first
+        valid.keys.firstraise
       else
-        puts "Multiple providers detected:"
-        valid.each_with_index { |(prov, _), idx| puts "#{idx + 1}) #{prov}" }
-        print "Choose a provider by number: "
-        choice = gets.to_i
-        valid.keys[choice - 1] || raise("Invalid choice")
+        raise "Multiple providers detected: #{valid.keys.join(", ")}. Define one in Ticuna::LLM.new(provider: :provider_name)."
       end
     end
   end
