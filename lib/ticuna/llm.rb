@@ -66,11 +66,11 @@ module Ticuna
 
       case valid.size
       when 0
-        raise "Provider not found. Define at least one ENV with token."
+        raise "Provider not found. Define at least one in config/initializers/ticuna.rb"
       when 1
-        valid.keys.firstraise
+        valid.keys.first
       else
-        raise "Multiple providers detected: #{valid.keys.join(", ")}. Define one in Ticuna::LLM.new(provider: :provider_name)."
+        raise "Multiple LLM APIs providers detected: #{valid.keys.join(", ")}. Define one in Ticuna::LLM.new(provider: :provider_name)."
       end
     end
   end
