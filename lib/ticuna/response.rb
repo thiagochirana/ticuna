@@ -1,11 +1,27 @@
 # frozen_string_literal: true
 
+require "json"
+
 module Ticuna
   class Response
     attr_reader :data
 
-    def initialize(data)
-      @data = deep_symbolize_keys(data)
+    def initialize(raw)
+      parsed =
+        case raw
+        when String
+          begin
+            JSON.parse(raw)
+          rescue JSON::ParserError
+            { content: raw }
+          end
+        when Hash
+          raw
+        else
+          raise ArgumentError, "Ticuna::Response only accepts Hash or String, received: #{raw.class}"
+        end
+
+      @data = deep_symbolize_keys(parsed)
     end
 
     def [](key)
@@ -16,14 +32,13 @@ module Ticuna
       @data
     end
 
-    def inspect
-      "#<Ticuna::Response #{@data.inspect}>"
+    def to_s
+      @data.inspect
     end
 
     def method_missing(name, *args, &block)
       value = @data[name]
       return wrap(value) if @data.key?(name)
-
       super
     end
 
