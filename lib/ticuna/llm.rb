@@ -2,6 +2,7 @@
 
 require "ticuna/providers/openai"
 require "ticuna/config"
+require "ticuna/response"
 
 module Ticuna
   class LLM
@@ -54,7 +55,8 @@ module Ticuna
                  else
                    [{ role: "user", content: message }]
                  end
-      @provider.ask_with_messages(messages, stream: stream, model: model, &block)
+
+      Ticuna::Response.new(@provider.ask_with_messages(messages, stream: stream, model: model, &block))
     end
 
     private
