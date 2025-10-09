@@ -19,3 +19,6 @@
 
 ## [0.2.2.1] - 2025-10-06
 - Remove timeout for requests
+
+## [0.2.3] - 2025-10-09
+- Fix errors
