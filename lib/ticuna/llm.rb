@@ -40,7 +40,7 @@ module Ticuna
                    [{ role: "user", content: message }]
                  end
 
-      model_string = resolve_model(model)
+      model_string = detect_llm_model(model)
 
       Ticuna::Response.new(
         @provider.ask_with_messages(messages, stream: stream, model: model_string, output_format: output_format, &block)
@@ -49,15 +49,11 @@ module Ticuna
 
     private
 
-    def resolve_model(model)
+    def detect_llm_model(model)
       return model if model.is_a?(String)
       return Ticuna::Providers::MODELS[model] if Ticuna::Providers::MODELS.key?(model)
 
-      available_models = Ticuna::Providers::MODELS.flat_map do |provider, models|
-        models.keys.map { |m| ":#{m} (#{provider})" }
-      end.join(", ")
-
-      raise "Model ':#{model}' not found. Available models: #{available_models}"
+      raise "\n\n\tLLM Model ':#{model}' not found.\n\tAvailable models: #{Ticuna::Providers::MODELS.keys.join(", ")}\n"
     end
 
     class << self

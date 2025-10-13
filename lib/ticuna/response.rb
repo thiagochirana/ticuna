@@ -4,10 +4,10 @@ require "json"
 
 module Ticuna
   class Response
-    attr_reader :data
+    attr_reader :data, :errors, :parsed
 
     def initialize(raw)
-      parsed =
+      @parsed =
         case raw
         when String
           begin
@@ -21,7 +21,8 @@ module Ticuna
           raise ArgumentError, "Ticuna::Response only accepts Hash or String, received: #{raw.class}"
         end
 
-      @data = deep_symbolize_keys(parsed)
+      @data = deep_symbolize_keys(@parsed)
+      @errors = deep_symbolize_keys(@parsed["error"] || [])
     end
 
     def [](key)
@@ -36,9 +37,14 @@ module Ticuna
       @data.inspect
     end
 
+    def errors?
+      !errors.empty?
+    end
+
     def method_missing(name, *args, &block)
       value = @data[name]
       return wrap(value) if @data.key?(name)
+
       super
     end
 

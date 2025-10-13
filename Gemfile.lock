@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ticuna (0.2.3)
+    ticuna (0.2.4)
       faraday (~> 2.14)
 
 GEM

@@ -25,3 +25,7 @@
 
 ## [0.2.4] - 2025-10-13
 - Fix errors with model name
+
+## [0.2.5] - 2025-10-13
+- Better messages
+- Add `errors?` method
