@@ -50,12 +50,12 @@ module Ticuna
     private
 
     def resolve_model(model)
-      return model.to_s unless model.is_a?(Symbol)
-      return model if Ticuna::Providers::MODELS.key?(model)
+      return model if model.is_a?(String)
+      return Ticuna::Providers::MODELS[model] if Ticuna::Providers::MODELS.key?(model)
 
-      available_models = Ticuna::Providers::MODELS.flat_map { |provider, models| 
-        models.keys.map { |m| ":#{m} (#{provider})" } 
-      }.join(", ")
+      available_models = Ticuna::Providers::MODELS.flat_map do |provider, models|
+        models.keys.map { |m| ":#{m} (#{provider})" }
+      end.join(", ")
 
       raise "Model ':#{model}' not found. Available models: #{available_models}"
     end

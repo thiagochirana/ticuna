@@ -22,3 +22,6 @@
 
 ## [0.2.3] - 2025-10-09
 - Fix errors
+
+## [0.2.4] - 2025-10-13
+- Fix errors with model name
