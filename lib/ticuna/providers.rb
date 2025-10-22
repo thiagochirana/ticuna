@@ -24,5 +24,9 @@ module Ticuna
       # deepseek: -> { Ticuna::Providers::DeepSeek.new(api_key: ENVS[:deepseek].call) },
       # mistral: -> { Ticuna::Providers::Mistral.new(api_key: ENVS[:mistral].call) }
     }.freeze
+
+    RESPONSE_EXTRACTORS = {
+      openai: ->(data) { data.dig(:choices, 0, :message, :content) }
+    }.freeze
   end
 end

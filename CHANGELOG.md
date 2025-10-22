@@ -32,3 +32,7 @@
 
 ## [0.2.6] - 2025-10-22
 - Add `context` method
+
+## [0.2.7] - 2025-10-22
+- Add modular response, to attend any LLM model
+- Add `.response` method in Ticuna::Response to ease access to the real response

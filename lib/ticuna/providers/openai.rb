@@ -7,6 +7,8 @@ module Ticuna
     class OpenAI < BaseProvider
       def initialize(api_key:)
         super(api_key: api_key, base_url: "https://api.openai.com/v1/")
+        @response = String.new
+        @raw_response = String.new
       end
 
       def ask(message, stream: false, model: "gpt-4.1-nano", output_format: :text, &block)
@@ -67,7 +69,8 @@ module Ticuna
             end
           end
 
-          {
+          @response = full_text
+          @raw_response = {
             "id" => "streamed_completion_#{Time.now.to_i}",
             "object" => "chat.completion",
             "model" => body[:model],
@@ -81,9 +84,13 @@ module Ticuna
           }
         else
           resp = @connection.post(path, body.to_json)
-          JSON.parse(resp.body)
+          @raw_response = JSON.parse(resp.body)
+          @response = @raw_response.dig("choices", 0, "message", "content")
         end
+
+        @raw_response
       end
+      attr_reader :response, :raw_response
     end
   end
 end

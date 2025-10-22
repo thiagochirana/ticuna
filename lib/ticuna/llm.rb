@@ -10,12 +10,11 @@ module Ticuna
     def self.new(provider = nil)
       provider_key = detect_provider(provider)
       provider_client = Ticuna::Providers::CLIENTS[provider_key].call
-      new_instance = allocate
-      new_instance.send(:initialize_llm, provider_client)
-      new_instance
+      allocate.tap { |instance| instance.send(:initialize_llm, provider_key, provider_client) }
     end
 
-    def initialize_llm(provider_client)
+    def initialize_llm(provider_key, provider_client)
+      @provider_key = provider_key
       @provider = provider_client
       @tools = []
       @contexts = []
@@ -52,7 +51,8 @@ module Ticuna
       model_string = detect_llm_model(model)
 
       Ticuna::Response.new(
-        @provider.ask_with_messages(messages, stream: stream, model: model_string, output_format: output_format, &block)
+        @provider.ask_with_messages(messages, stream: stream, model: model_string, output_format: output_format, &block),
+        provider: @provider_key
       )
     end
 

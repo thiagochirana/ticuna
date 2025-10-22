@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require "json"
+require "ticuna/providers"
 
 module Ticuna
   class Response
-    attr_reader :data, :errors, :parsed
+    attr_reader :data, :errors, :parsed, :raw_response, :response, :provider
 
-    def initialize(raw)
+    def initialize(raw, provider: nil)
+      @provider = provider
+      @raw_response = raw
       @parsed =
         case raw
         when String
@@ -22,7 +25,14 @@ module Ticuna
         end
 
       @data = deep_symbolize_keys(@parsed)
-      @errors = deep_symbolize_keys(@parsed["error"] || [])
+      error_payload =
+        if @parsed.is_a?(Hash)
+          @parsed["error"] || @parsed[:error] || []
+        else
+          []
+        end
+      @errors = deep_symbolize_keys(error_payload)
+      @response = resolve_response
     end
 
     def [](key)
@@ -70,12 +80,36 @@ module Ticuna
     def wrap(value)
       case value
       when Hash
-        self.class.new(value)
+        self.class.new(value, provider: provider)
       when Array
         value.map { |v| wrap(v) }
       else
         value
       end
+    end
+
+    def resolve_response
+      from_provider = extract_from_provider
+      return from_provider unless blank?(from_provider)
+
+      fallback =
+        if @data.is_a?(Hash)
+          @data[:content] || @data[:response]
+        end
+      return fallback unless blank?(fallback)
+
+      @parsed if @parsed.is_a?(String)
+    end
+
+    def blank?(value)
+      value.respond_to?(:empty?) ? value.empty? : !value
+    end
+
+    def extract_from_provider
+      return unless provider
+
+      extractor = Ticuna::Providers::RESPONSE_EXTRACTORS[provider]
+      extractor&.call(@data)
     end
   end
 end
