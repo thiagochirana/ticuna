@@ -18,6 +18,7 @@ module Ticuna
     def initialize_llm(provider_client)
       @provider = provider_client
       @tools = []
+      @contexts = []
     end
 
     def tool(klass)
@@ -25,13 +26,21 @@ module Ticuna
       self
     end
 
-    def ask(message, stream: false, model: :gpt_4_1, output_format: :text, &block)
-      tool_contexts = @tools.map(&:context).compact.join("\n\n")
+    def context(value = nil, &block)
+      value = block.call if block
+      @contexts << value if value
+      self
+    end
 
-      system_message = if tool_contexts.empty?
+    def ask(message, stream: false, model: :gpt_4_1, output_format: :text, &block)
+      tool_contexts = @tools.map(&:context).compact
+      direct_contexts = @contexts.compact
+      combined_contexts = (tool_contexts + direct_contexts).reject { |ctx| ctx.to_s.strip.empty? }
+
+      system_message = if combined_contexts.empty?
                          nil
                        else
-                         { role: "developer", content: tool_contexts }
+                         { role: "developer", content: combined_contexts.join("\n\n") }
                        end
 
       messages = if system_message

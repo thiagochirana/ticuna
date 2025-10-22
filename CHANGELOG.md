@@ -29,3 +29,6 @@
 ## [0.2.5] - 2025-10-13
 - Better messages
 - Add `errors?` method
+
+## [0.2.6] - 2025-10-22
+- Add `context` method
